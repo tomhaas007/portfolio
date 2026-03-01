@@ -1,36 +1,5 @@
-import { getPortfolioItems, type NotionPage } from "@/lib/notion";
-
-function getDisplayProps(props: Record<string, unknown>) {
-  const lower = Object.fromEntries(
-    Object.entries(props).map(([k, v]) => [k.toLowerCase().replace(/\s/g, "_"), v])
-  );
-  return {
-    url: (lower.url as string) ?? (lower.link as string) ?? null,
-  };
-}
-
-function PortfolioCard({ page }: { page: NotionPage }) {
-  const { url } = getDisplayProps(page.properties);
-
-  return (
-    <article className="flex h-full w-[320px] flex-shrink-0 flex-col rounded-[24px] border border-primary-300/60 bg-primary-100 p-6 transition hover:border-primary-700/30 md:w-[420px]">
-      <div className="mt-auto">
-        {url ? (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-h1 font-bold text-primary-950 hover:underline"
-          >
-            {page.title}
-          </a>
-        ) : (
-          <h1 className="text-h1 font-bold text-primary-950">{page.title}</h1>
-        )}
-      </div>
-    </article>
-  );
-}
+import { getPortfolioItems } from "@/lib/notion";
+import { PortfolioCard } from "@/components/PortfolioCard";
 
 export default async function Home() {
   const items = await getPortfolioItems();
