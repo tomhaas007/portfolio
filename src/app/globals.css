@@ -7,6 +7,8 @@
   --color-primary-300: #eeedf2;
   --color-primary-700: #757380;
   --color-primary-950: #191919;
+  --color-type-pill: #463F61;
+  --color-skills-pill: #C4B6F9;
 
   /* Typography */
   --font-size-h1: 24px;
@@ -35,6 +37,8 @@
   --color-primary-300: var(--color-primary-300);
   --color-primary-700: var(--color-primary-700);
   --color-primary-950: var(--color-primary-950);
+  --color-type-pill: var(--color-type-pill);
+  --color-skills-pill: var(--color-skills-pill);
 
   /* Typography */
   --font-sans: var(--font-familjen-grotesk), ui-sans-serif, system-ui, sans-serif;
@@ -64,6 +68,12 @@ body {
   font-family: var(--font-sans);
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Typography utility classes */

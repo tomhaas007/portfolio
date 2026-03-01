@@ -15,9 +15,15 @@ export type NotionPage = {
   properties: Record<string, unknown>;
 };
 
+type ExtractedValue =
+  | string
+  | string[]
+  | { start: string; end: string | null }
+  | null;
+
 function extractPropertyValue(
   prop: { type: string; [key: string]: unknown } | undefined
-): string | string[] | null {
+): ExtractedValue {
   if (!prop) return null;
 
   switch (prop.type) {
@@ -30,8 +36,12 @@ function extractPropertyValue(
     case "url":
       return (prop.url as string) ?? null;
     case "date":
-      const date = prop.date as { start: string } | null;
-      return date?.start ?? null;
+      const date = prop.date as { start: string; end?: string } | null;
+      if (!date?.start) return null;
+      return { start: date.start, end: date.end ?? null };
+    case "files":
+      const files = (prop.files as { type: string; file?: { url: string }; external?: { url: string } }[]) ?? [];
+      return files.map((f) => (f.file?.url ?? f.external?.url ?? "")).filter(Boolean);
     case "multi_select":
       const multiSelect = (prop.multi_select as { name: string }[]) ?? [];
       return multiSelect.map((s) => s.name);
@@ -111,4 +121,75 @@ export async function getPortfolioItems(): Promise<NotionPage[]> {
       properties,
     };
   });
+}
+
+function normalizeKey(key: string) {
+  return key.toLowerCase().replace(/\s/g, "_");
+}
+
+export type CardDisplayProps = {
+  images: string[];
+  type: string | null;
+  skills: string[];
+  url: string | null;
+  location: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+};
+
+export function getCardDisplayProps(props: Record<string, unknown>): CardDisplayProps {
+  const lower = Object.fromEntries(
+    Object.entries(props).map(([k, v]) => [normalizeKey(k), v])
+  );
+
+  const getImage = (key: string): string | null => {
+    const val = lower[key];
+    if (!val) return null;
+    if (typeof val === "string") return val || null;
+    if (Array.isArray(val) && val.length > 0 && typeof val[0] === "string") return val[0];
+    return null;
+  };
+
+  const images = ["image_1", "image_2", "image_3"]
+    .map((k) => getImage(k))
+    .filter((url): url is string => !!url);
+
+  const typeVal = lower.type ?? lower.kind;
+  const type = typeof typeVal === "string" ? typeVal : null;
+
+  const skillsVal = lower.skills;
+  const skills = Array.isArray(skillsVal)
+    ? skillsVal.filter((s): s is string => typeof s === "string")
+    : [];
+
+  const url = (lower.url as string) ?? (lower.link as string) ?? null;
+
+  const locationVal = lower.location ?? lower.place;
+  const location = typeof locationVal === "string" ? locationVal : null;
+
+  const dateVal = lower.date ?? lower.dates;
+  let startDate: string | null = null;
+  let endDate: string | null = null;
+  if (dateVal && typeof dateVal === "object" && "start" in dateVal) {
+    const d = dateVal as { start: string; end: string | null };
+    startDate = d.start ?? null;
+    endDate = d.end ?? null;
+  } else if (typeof dateVal === "string") {
+    startDate = dateVal;
+  }
+
+  const descVal = lower.description ?? lower.desc;
+  const description = typeof descVal === "string" ? descVal : null;
+
+  return {
+    images,
+    type,
+    skills,
+    url,
+    location,
+    startDate,
+    endDate,
+    description,
+  };
 }
