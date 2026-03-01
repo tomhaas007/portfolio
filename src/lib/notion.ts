@@ -1,4 +1,6 @@
+import "server-only";
 import { Client } from "@notionhq/client";
+import type { NotionPage } from "./card-props";
 
 if (!process.env.NOTION_API_KEY) {
   throw new Error("NOTION_API_KEY is required. Add it to .env.local");
@@ -8,12 +10,7 @@ const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-export type NotionPage = {
-  id: string;
-  url: string;
-  title: string;
-  properties: Record<string, unknown>;
-};
+export type { NotionPage };
 
 type ExtractedValue =
   | string
@@ -121,75 +118,4 @@ export async function getPortfolioItems(): Promise<NotionPage[]> {
       properties,
     };
   });
-}
-
-function normalizeKey(key: string) {
-  return key.toLowerCase().replace(/\s/g, "_");
-}
-
-export type CardDisplayProps = {
-  images: string[];
-  type: string | null;
-  skills: string[];
-  url: string | null;
-  location: string | null;
-  startDate: string | null;
-  endDate: string | null;
-  description: string | null;
-};
-
-export function getCardDisplayProps(props: Record<string, unknown>): CardDisplayProps {
-  const lower = Object.fromEntries(
-    Object.entries(props).map(([k, v]) => [normalizeKey(k), v])
-  );
-
-  const getImage = (key: string): string | null => {
-    const val = lower[key];
-    if (!val) return null;
-    if (typeof val === "string") return val || null;
-    if (Array.isArray(val) && val.length > 0 && typeof val[0] === "string") return val[0];
-    return null;
-  };
-
-  const images = ["image_1", "image_2", "image_3"]
-    .map((k) => getImage(k))
-    .filter((url): url is string => !!url);
-
-  const typeVal = lower.type ?? lower.kind;
-  const type = typeof typeVal === "string" ? typeVal : null;
-
-  const skillsVal = lower.skills;
-  const skills = Array.isArray(skillsVal)
-    ? skillsVal.filter((s): s is string => typeof s === "string")
-    : [];
-
-  const url = (lower.url as string) ?? (lower.link as string) ?? null;
-
-  const locationVal = lower.location ?? lower.place;
-  const location = typeof locationVal === "string" ? locationVal : null;
-
-  const dateVal = lower.date ?? lower.dates;
-  let startDate: string | null = null;
-  let endDate: string | null = null;
-  if (dateVal && typeof dateVal === "object" && "start" in dateVal) {
-    const d = dateVal as { start: string; end: string | null };
-    startDate = d.start ?? null;
-    endDate = d.end ?? null;
-  } else if (typeof dateVal === "string") {
-    startDate = dateVal;
-  }
-
-  const descVal = lower.description ?? lower.desc;
-  const description = typeof descVal === "string" ? descVal : null;
-
-  return {
-    images,
-    type,
-    skills,
-    url,
-    location,
-    startDate,
-    endDate,
-    description,
-  };
 }
