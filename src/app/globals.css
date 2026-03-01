@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
+/* Design system tokens */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Main colors */
+  --color-primary-100: #fafafc;
+  --color-primary-300: #eeedf2;
+  --color-primary-700: #757380;
+  --color-primary-950: #191919;
+
+  /* Typography */
+  --font-size-h1: 24px;
+  --font-size-h3: 16px;
+  --font-size-body: 14px;
+  --line-height-h1: 1.2;
+  --line-height-h3: 1.4;
+  --line-height-body: 1.5;
+
+  /* 4px spacing system (1 unit = 4px) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Color palette - use as bg-primary-100, text-primary-950, etc. */
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-950: var(--color-primary-950);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Typography */
+  --font-sans: var(--font-familjen-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-size-h1: var(--font-size-h1);
+  --font-size-h3: var(--font-size-h3);
+  --font-size-body: var(--font-size-body);
+  --line-height-h1: var(--line-height-h1);
+  --line-height-h3: var(--line-height-h3);
+  --line-height-body: var(--line-height-body);
+
+  /* 4px spacing scale - use as p-1, m-2, gap-4, etc. */
+  --spacing-1: var(--spacing-1);
+  --spacing-2: var(--spacing-2);
+  --spacing-3: var(--spacing-3);
+  --spacing-4: var(--spacing-4);
+  --spacing-5: var(--spacing-5);
+  --spacing-6: var(--spacing-6);
+  --spacing-8: var(--spacing-8);
+  --spacing-10: var(--spacing-10);
+  --spacing-12: var(--spacing-12);
+  --spacing-16: var(--spacing-16);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-primary-100);
+  color: var(--color-primary-950);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+/* Typography utility classes */
+.text-h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: 400;
+}
+
+.text-h3 {
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+  font-weight: 400;
+}
+
+.text-body {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: 400;
 }
