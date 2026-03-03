@@ -1,6 +1,6 @@
 import "server-only";
 import { Client } from "@notionhq/client";
-import type { NotionPage } from "./card-props";
+import { getCardDisplayProps, type NotionPage } from "./card-props";
 
 export type { NotionPage };
 
@@ -68,6 +68,12 @@ async function resolveDataSourceId(notion: Client, databaseId: string): Promise<
   return databaseId;
 }
 
+function toTimestamp(date: string | null): number | null {
+  if (!date) return null;
+  const parsed = Date.parse(date);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 export async function getPortfolioItems(): Promise<NotionPage[]> {
   const notion = getNotionClient();
   if (!notion) {
@@ -94,7 +100,7 @@ export async function getPortfolioItems(): Promise<NotionPage[]> {
     return [];
   }
 
-  return response.results.map((item) => {
+  const items = response.results.map((item) => {
     if (item.object !== "page" || !("properties" in item)) {
       return {
         id: item.id,
@@ -124,5 +130,31 @@ export async function getPortfolioItems(): Promise<NotionPage[]> {
       title,
       properties,
     };
+  });
+
+  const nowTs = Date.now();
+
+  return items.sort((a, b) => {
+    const aProps = getCardDisplayProps(a.properties);
+    const bProps = getCardDisplayProps(b.properties);
+
+    const aEnd = toTimestamp(aProps.endDate) ?? (aProps.startDate ? nowTs : null);
+    const bEnd = toTimestamp(bProps.endDate) ?? (bProps.startDate ? nowTs : null);
+
+    if (aEnd !== null && bEnd !== null && aEnd !== bEnd) {
+      return bEnd - aEnd;
+    }
+    if (aEnd !== null && bEnd === null) return -1;
+    if (aEnd === null && bEnd !== null) return 1;
+
+    const aStart = toTimestamp(aProps.startDate);
+    const bStart = toTimestamp(bProps.startDate);
+    if (aStart !== null && bStart !== null && aStart !== bStart) {
+      return bStart - aStart;
+    }
+    if (aStart !== null && bStart === null) return -1;
+    if (aStart === null && bStart !== null) return 1;
+
+    return a.title.localeCompare(b.title);
   });
 }
