@@ -2,14 +2,6 @@ import "server-only";
 import { Client } from "@notionhq/client";
 import type { NotionPage } from "./card-props";
 
-if (!process.env.NOTION_API_KEY) {
-  throw new Error("NOTION_API_KEY is required. Add it to .env.local");
-}
-
-const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
-});
-
 export type { NotionPage };
 
 type ExtractedValue =
@@ -54,7 +46,17 @@ function extractPropertyValue(
   }
 }
 
-async function resolveDataSourceId(databaseId: string): Promise<string> {
+function getNotionClient(): Client | null {
+  const notionApiKey = process.env.NOTION_API_KEY;
+  if (!notionApiKey) {
+    console.warn("NOTION_API_KEY not set. Add it to .env.local");
+    return null;
+  }
+
+  return new Client({ auth: notionApiKey });
+}
+
+async function resolveDataSourceId(notion: Client, databaseId: string): Promise<string> {
   try {
     const db = await notion.databases.retrieve({ database_id: databaseId });
     if ("data_sources" in db && Array.isArray(db.data_sources) && db.data_sources.length > 0) {
@@ -67,13 +69,18 @@ async function resolveDataSourceId(databaseId: string): Promise<string> {
 }
 
 export async function getPortfolioItems(): Promise<NotionPage[]> {
+  const notion = getNotionClient();
+  if (!notion) {
+    return [];
+  }
+
   const databaseId = process.env.NOTION_DATABASE_ID;
   if (!databaseId) {
     console.warn("NOTION_DATABASE_ID not set. Add your database ID to .env.local");
     return [];
   }
 
-  const dataSourceId = await resolveDataSourceId(databaseId);
+  const dataSourceId = await resolveDataSourceId(notion, databaseId);
 
   let response;
   try {

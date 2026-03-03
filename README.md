@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
 
-## Getting Started
+Personal portfolio built with Next.js App Router, Tailwind CSS v4, Framer Motion, and Notion as a CMS.
 
-First, run the development server:
+## Requirements
+
+- Node.js 20+
+- npm
+- A Notion integration token
+- A Notion database shared with that integration
+
+## Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env.local` in the project root:
+
+```bash
+NOTION_API_KEY=secret_xxx
+NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+3. Start the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+If env vars are missing or Notion is unreachable, the app renders an empty state instead of crashing.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Notion schema guidance
 
-## Learn More
+The app is tolerant of property names and tries common aliases, but these fields are used when present:
 
-To learn more about Next.js, take a look at the following resources:
+- `Name` (title)
+- `Type` or `Kind` (select)
+- `Skills` (multi-select)
+- `URL` or `Link` (url)
+- `Location` or `Place` (text)
+- `Date`/`Dates` (date), or separate `Start` + `End` date fields
+- `Description` (text)
+- Up to 3 image fields: `Image 1`, `Image 2`, `Image 3` (files/url)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Run production server
+- `npm run lint` - Run ESLint

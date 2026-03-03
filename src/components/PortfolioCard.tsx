@@ -11,6 +11,22 @@ type PortfolioCardProps = {
   onRequestExpand: () => void;
 };
 
+type CardTitleProps = {
+  title: string;
+  url: string | null;
+  titleOpacity: number;
+  onTitleEnter: () => void;
+  onTitleLeave: () => void;
+};
+
+type CardMetaProps = CardTitleProps & {
+  location: string | null;
+  dateRange: string | null;
+  description: string | null;
+  containerClassName: string;
+  descriptionClassName: string;
+};
+
 function formatDate(iso: string | null): string {
   if (!iso) return "";
   const [y, m] = iso.split("-");
@@ -53,6 +69,94 @@ function ArrowRightIcon() {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+function CardPills({ type, skills }: { type: string | null; skills: string[] }) {
+  if (!type && skills.length === 0) return null;
+
+  return (
+    <div className="mb-3 flex flex-wrap gap-1">
+      {type && (
+        <span
+          className="rounded-full px-3 py-1 text-body font-medium text-white"
+          style={{ backgroundColor: "var(--color-type-pill)" }}
+        >
+          {type}
+        </span>
+      )}
+      {skills.map((skill) => (
+        <span
+          key={skill}
+          className="rounded-full px-3 py-1 text-body font-medium text-white"
+          style={{ backgroundColor: "var(--color-skills-pill)" }}
+        >
+          {skill}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function CardTitle({
+  title,
+  url,
+  titleOpacity,
+  onTitleEnter,
+  onTitleLeave,
+}: CardTitleProps) {
+  if (url) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-h1 font-bold text-primary-950 transition-opacity duration-200 focus:outline-none"
+        style={{ opacity: titleOpacity }}
+        onPointerEnter={onTitleEnter}
+        onPointerLeave={onTitleLeave}
+        onBlur={onTitleLeave}
+      >
+        {title}
+      </a>
+    );
+  }
+
+  return <h1 className="text-h1 font-bold text-primary-950">{title}</h1>;
+}
+
+function CardMeta({
+  title,
+  url,
+  titleOpacity,
+  onTitleEnter,
+  onTitleLeave,
+  location,
+  dateRange,
+  description,
+  containerClassName,
+  descriptionClassName,
+}: CardMetaProps) {
+  return (
+    <div className={containerClassName}>
+      <CardTitle
+        title={title}
+        url={url}
+        titleOpacity={titleOpacity}
+        onTitleEnter={onTitleEnter}
+        onTitleLeave={onTitleLeave}
+      />
+
+      {(location || dateRange) && (
+        <div className="flex items-center gap-2 text-body text-primary-950">
+          {location && <span>{location}</span>}
+          {location && dateRange && <span className="h-1 w-1 rounded-full bg-primary-300" />}
+          {dateRange && <span>{dateRange}</span>}
+        </div>
+      )}
+
+      {description && <p className={descriptionClassName}>{description}</p>}
+    </div>
   );
 }
 
@@ -205,62 +309,19 @@ export function PortfolioCard({
                 )}
                 <div className="min-h-0 flex-1 md:self-end">
                   <div className="h-full min-h-0 flex-1 overflow-y-auto pr-1">
-                    {/* Pills (always above title, 12px spacing) */}
-                    {(type || skills.length > 0) && (
-                      <div className="mb-3 flex flex-wrap gap-1">
-                        {type && (
-                          <span
-                            className="rounded-full px-3 py-1 text-body font-medium text-white"
-                            style={{ backgroundColor: "var(--color-type-pill)" }}
-                          >
-                            {type}
-                          </span>
-                        )}
-                        {skills.map((s) => (
-                          <span
-                            key={s}
-                            className="rounded-full px-3 py-1 text-body font-medium text-white"
-                            style={{ backgroundColor: "var(--color-skills-pill)" }}
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Title / location / description with 8px spacing */}
-                    <div className="flex min-h-0 flex-1 flex-col gap-3">
-                      {url ? (
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-h1 font-bold text-primary-950 transition-opacity duration-200 focus:outline-none"
-                          style={{ opacity: titleOpacity }}
-                          onPointerEnter={() => setIsTitleHovered(true)}
-                          onPointerLeave={() => setIsTitleHovered(false)}
-                          onBlur={() => setIsTitleHovered(false)}
-                        >
-                          {page.title}
-                        </a>
-                      ) : (
-                        <h1 className="text-h1 font-bold text-primary-950">{page.title}</h1>
-                      )}
-
-                      {(location || dateRange) && (
-                        <div className="flex items-center gap-2 text-body text-primary-950">
-                          {location && <span>{location}</span>}
-                          {location && dateRange && (
-                            <span className="h-1 w-1 rounded-full bg-primary-300" />
-                          )}
-                          {dateRange && <span>{dateRange}</span>}
-                        </div>
-                      )}
-
-                      {description && (
-                        <p className="text-body text-primary-700">{description}</p>
-                      )}
-                    </div>
+                    <CardPills type={type} skills={skills} />
+                    <CardMeta
+                      title={page.title}
+                      url={url}
+                      titleOpacity={titleOpacity}
+                      onTitleEnter={() => setIsTitleHovered(true)}
+                      onTitleLeave={() => setIsTitleHovered(false)}
+                      location={location}
+                      dateRange={dateRange}
+                      description={description}
+                      containerClassName="flex min-h-0 flex-1 flex-col gap-3"
+                      descriptionClassName="text-body text-primary-700"
+                    />
                   </div>
                 </div>
               </div>
@@ -291,64 +352,19 @@ export function PortfolioCard({
 
             {!isExpanded && (
               <div className="mt-auto">
-                {/* Pills (always above title, 12px spacing) */}
-                {(type || skills.length > 0) && (
-                  <div className="mb-3 flex flex-wrap gap-1">
-                    {type && (
-                      <span
-                        className="rounded-full px-3 py-1 text-body font-medium text-white"
-                        style={{ backgroundColor: "var(--color-type-pill)" }}
-                      >
-                        {type}
-                      </span>
-                    )}
-                    {skills.map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-full px-3 py-1 text-body font-medium text-white"
-                        style={{ backgroundColor: "var(--color-skills-pill)" }}
-                      >
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Title / location / description with 8px spacing */}
-                <div className="flex flex-col gap-2">
-                  {url ? (
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-h1 font-bold text-primary-950 transition-opacity duration-200 focus:outline-none"
-                      style={{ opacity: titleOpacity }}
-                      onPointerEnter={() => setIsTitleHovered(true)}
-                      onPointerLeave={() => setIsTitleHovered(false)}
-                      onBlur={() => setIsTitleHovered(false)}
-                    >
-                      {page.title}
-                    </a>
-                  ) : (
-                    <h1 className="text-h1 font-bold text-primary-950">{page.title}</h1>
-                  )}
-
-                  {(location || dateRange) && (
-                    <div className="flex items-center gap-2 text-body text-primary-950">
-                      {location && <span>{location}</span>}
-                      {location && dateRange && (
-                        <span className="h-1 w-1 rounded-full bg-primary-300" />
-                      )}
-                      {dateRange && <span>{dateRange}</span>}
-                    </div>
-                  )}
-
-                  {description && (
-                    <p className="line-clamp-3 text-body text-primary-700 text-ellipsis">
-                      {description}
-                    </p>
-                  )}
-                </div>
+                <CardPills type={type} skills={skills} />
+                <CardMeta
+                  title={page.title}
+                  url={url}
+                  titleOpacity={titleOpacity}
+                  onTitleEnter={() => setIsTitleHovered(true)}
+                  onTitleLeave={() => setIsTitleHovered(false)}
+                  location={location}
+                  dateRange={dateRange}
+                  description={description}
+                  containerClassName="flex flex-col gap-2"
+                  descriptionClassName="line-clamp-3 text-body text-primary-700 text-ellipsis"
+                />
               </div>
             )}
           </motion.div>
@@ -361,22 +377,13 @@ export function PortfolioCard({
             transition={{ duration: 0.36, ease: "easeInOut" }}
             className="mt-auto"
           >
-            {url ? (
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-h1 font-bold text-primary-950 transition-opacity duration-200 focus:outline-none"
-                style={{ opacity: titleOpacity }}
-                onPointerEnter={() => setIsTitleHovered(true)}
-                onPointerLeave={() => setIsTitleHovered(false)}
-                onBlur={() => setIsTitleHovered(false)}
-              >
-                {page.title}
-              </a>
-            ) : (
-              <h1 className="text-h1 font-bold text-primary-950">{page.title}</h1>
-            )}
+            <CardTitle
+              title={page.title}
+              url={url}
+              titleOpacity={titleOpacity}
+              onTitleEnter={() => setIsTitleHovered(true)}
+              onTitleLeave={() => setIsTitleHovered(false)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
