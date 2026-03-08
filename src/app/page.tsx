@@ -2,6 +2,8 @@ import { getPortfolioItems } from "@/lib/notion";
 import { TimelineCards } from "@/components/TimelineCards";
 import { FooterEasterEgg } from "@/components/FooterEasterEgg";
 
+export const revalidate = 300;
+
 export default async function Home() {
   const items = await getPortfolioItems();
 
