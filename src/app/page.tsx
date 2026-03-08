@@ -1,5 +1,6 @@
 import { getPortfolioItems } from "@/lib/notion";
 import { TimelineCards } from "@/components/TimelineCards";
+import { FooterEasterEgg } from "@/components/FooterEasterEgg";
 
 export default async function Home() {
   const items = await getPortfolioItems();
@@ -29,9 +30,7 @@ export default async function Home() {
         )}
 
         <section className="w-full shrink-0 px-9 pt-5 pb-9">
-          <p className="text-body text-primary-700">
-            designed and built by myself in berlin, germany.
-          </p>
+          <FooterEasterEgg />
         </section>
       </main>
     </div>

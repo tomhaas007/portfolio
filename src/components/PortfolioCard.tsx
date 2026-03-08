@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { getCardDisplayProps, type NotionPage } from "@/lib/card-props";
 
 type PortfolioCardProps = {
@@ -230,6 +230,12 @@ export function PortfolioCard({
     onRequestExpand();
   };
 
+  const handleCardClick = (event: MouseEvent<HTMLElement>) => {
+    if (isExpanded) return;
+    if ((event.target as HTMLElement).closest("a, button, input, textarea, select")) return;
+    handleExpandToggle();
+  };
+
   return (
     <motion.article
       layout
@@ -239,11 +245,12 @@ export function PortfolioCard({
           ease: [0.68, -0.6, 0.32, 1.6],
         },
       }}
-      className="relative flex h-full w-[320px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] border-0 bg-primary-100 p-6 outline-none transition-shadow duration-300 focus:outline-none md:w-[420px]"
+      className={`relative flex h-full w-[320px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] border-0 bg-primary-100 p-6 outline-none transition-shadow duration-300 focus:outline-none md:w-[420px] ${isExpanded ? "" : "cursor-pointer"}`}
       style={{
         boxShadow: shadow,
         width: cardWidth,
       }}
+      onClick={handleCardClick}
       onPointerEnter={() => setIsHovered(true)}
       onPointerLeave={() => {
         if (!isExpanded && !isCoarsePointer) {
@@ -260,7 +267,7 @@ export function PortfolioCard({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{
-              duration: isExpanded ? 0.68 : 0.36,
+              duration: isExpanded ? 0.68 : 0.24,
               ease: isExpanded ? [0.68, -0.6, 0.32, 1.6] : "easeInOut",
             }}
             className={`flex h-full min-h-0 flex-1 flex-col ${isExpanded ? "gap-4" : "justify-between"}`}
@@ -374,7 +381,7 @@ export function PortfolioCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.36, ease: "easeInOut" }}
+            transition={{ duration: 0.24, ease: "easeInOut" }}
             className="mt-auto"
           >
             <CardTitle
