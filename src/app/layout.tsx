@@ -11,6 +11,9 @@ const familjenGrotesk = Familjen_Grotesk({
 export const metadata: Metadata = {
   title: "Portfolio",
   description: "Portfolio website",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
