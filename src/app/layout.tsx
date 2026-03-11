@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Familjen_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const familjenGrotesk = Familjen_Grotesk({
@@ -27,6 +28,7 @@ export default function RootLayout({
         className={`${familjenGrotesk.variable} ${familjenGrotesk.className} antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
